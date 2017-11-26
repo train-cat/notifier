@@ -1,13 +1,12 @@
 package bot
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/train-cat/client-train-go"
 	"github.com/train-cat/notifier/model"
 )
 
 // Notify bot to send issue
-func Notify(i *model.Issue, alerts []traincat.Alert) {
+func Notify(i *model.Issue, alerts []traincat.Alert) error {
 	n := notification{
 		Issue: issue{
 			Station:  i.StationName,
@@ -23,8 +22,7 @@ func Notify(i *model.Issue, alerts []traincat.Alert) {
 		err := alert.Embedded.Get("action", &a)
 
 		if err != nil {
-			log.Errorf("[notify] %s", err)
-			continue
+			return err
 		}
 
 		n.Actions = append(n.Actions, action{
@@ -33,9 +31,5 @@ func Notify(i *model.Issue, alerts []traincat.Alert) {
 		})
 	}
 
-	err := n.send()
-
-	if err != nil {
-		log.Errorf("[send notification] %s", err)
-	}
+	return n.send()
 }

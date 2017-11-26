@@ -24,7 +24,11 @@ func Issue(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(as) > 0 {
-		go bot.Notify(i, as)
+		err = bot.Notify(i, as)
+	}
+
+	if helper.HTTPError(w, err) {
+		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)

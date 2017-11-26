@@ -6,9 +6,13 @@ import (
 	"net/http"
 
 	"github.com/spf13/viper"
+	"time"
+	"errors"
 )
 
-var client = http.Client{}
+var client = http.Client{
+	Timeout: time.Second * 5,
+}
 
 type (
 	notification struct {
@@ -41,10 +45,14 @@ func (n *notification) send() error {
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(buf.Bytes()))
 
 	if err != nil {
-		return nil
+		return err
 	}
 
-	_, err = client.Do(req)
+	res, err := client.Do(req)
+
+	if res.StatusCode != http.StatusNoContent {
+		return errors.New("bot notify fail")
+	}
 
 	return err
 }
